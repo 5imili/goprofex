@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -15,7 +14,8 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	log.SetOutput(bufio.NewWriterSize(f, 1024*16))
+	//log.SetOutput(bufio.NewWriterSize(f, 1024*16))
+	log.SetOutput(f)
 }
 
 func main() {

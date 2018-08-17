@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bytes"
+	"fmt"
 	"io/ioutil"
 	"strconv"
 	"strings"
@@ -15,6 +15,17 @@ type StatsD struct {
 
 var reservedReplacer = strings.NewReplacer(":", "_", "|", "_", "@", "_")
 
+func (s *StatsD) Send(stat string, kind string, delta float64) {
+	buf := fmt.Sprintf("%s.", s.Namespace)
+	trimmedStat := strings.NewReplacer(":", "_", "|", "_", "@", "_").Replace(stat)
+	buf += fmt.Sprintf("%s:%f|%s", trimmedStat, delta, kind)
+	if s.SampleRate != 0 && s.SampleRate < 1 {
+		buf += fmt.Sprintf("|@%s", strconv.FormatFloat(s.SampleRate, 'f', -1, 64))
+	}
+	ioutil.Discard.Write([]byte(buf)) // TODO: Write to a socket
+}
+
+/*
 func (s *StatsD) Send(stat string, kind string, delta float64) {
 	buf := bytes.Buffer{}
 	buf.WriteString(s.Namespace)
@@ -30,7 +41,7 @@ func (s *StatsD) Send(stat string, kind string, delta float64) {
 	}
 	buf.WriteTo(ioutil.Discard) // TODO: Write to a socket
 }
-
+*/
 func (s *StatsD) Incr(stat string) {
 	s.Send(stat, "c", 1)
 }
